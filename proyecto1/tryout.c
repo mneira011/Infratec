@@ -54,6 +54,8 @@ int main(int argc, char const *argv[]) {
   for(int i = 0; i<tamArray ; i++){
     printf("%d\n",img->informacion[i] );
   }
+
+  
   // char stringPrueba[256] = "";
   // char a[] = "B";
   // char b[] = "a";
