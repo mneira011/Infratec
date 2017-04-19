@@ -18,21 +18,31 @@ typedef struct img
 	int alto;
 	unsigned char *informacion;
 } Imagen;
-
+//Cantidad de caracteres en el mensaje insertado
+int lenPal = 0;
+//Esta funcion convierte un caracter ascii en decimal a un string de 8 bits que corresponde
+//al numero representado en binario
+char *asciiABinario(int numDecimal);
+//Esta funcion devuelve un string en binario que
+//representa el mensaje
+char *darMensajeBinario(unsigned char mensaje[],int n);
+//esta funcion pasa el estring de 8 bits correspondiende a
+//el valor correspondiente (int) en decimal
+int binarioADec(char *palBinario);
 
 // Funcion que carga el bmp en la estructura Imagen
-void cargarBMP24 (Imagen * imagen, char * nomArchivoEntrada);
+void cargarBMP24 (Imagen * imagen, 	char * nomArchivoEntrada);
 
 // Funcion que guarda el contenido de la estructura imagen en un archivo binario
 void guardarBMP24 (Imagen * imagen, char * nomArchivoSalida);
 
 //Funcion que inserta un mensaje en la imagen usando n bits por Byte
-void insertarMensaje(Imagen * img , char mensaje[], int n);
+void insertarMensaje(Imagen * img , unsigned char mensaje[], int n);
 
 //Funcion que lee un mensaje de una imagen dando la longitud del mensaje y el numero de bits por byte usados
-void leerMensaje(Imagen * img,char msg[], int l, int n);
+void leerMensaje(Imagen * img, unsigned char msg[], int l, int n);
 
-unsigned char sacarNbits(char mensaje[],int bitPos,int n);
+unsigned char sacarNbits(unsigned char mensaje[],int bitPos,int n);
 
 // Programa principal
 // NO MODIFICAR
@@ -109,6 +119,42 @@ int main(int argc, char* argv[]) {
 */
 void insertarMensaje( Imagen * img , unsigned char mensaje[], int n ) {
 	//TODO  Desarrollar completo en C
+	char *pMensaje = mensaje;
+	// printf("%s\n",mensaje);
+	// printf("%s\n",pMensaje);
+	char *pal = darMensajeBinario(pMensaje,n);
+	// printf("%s\n",pal);
+	for(int i = 0; i<lenPal ; i +=n){
+		char temp[9];
+		for(int j = 0 ; j<n ; j++){
+				temp[7-j] = pal[i+j];
+		}
+		for(int j = 0; j<(8-n); j++){
+			temp[j] = '0';
+		}
+
+		temp[8] = '\0';
+		// printf("%s\n",temp );
+
+
+		char *pTemp = temp;
+		// printf("%s\n",pTemp );
+		// printf("%d\n",binarioADec(pTemp) );
+		//
+		// printf("Dec: %d, binario: %s\n",binarioADec(pTemp) ,temp );
+		// printf("Valor img: %d\n",img->informacion[i/n] );
+		int res = img->informacion[i/n] % (1<<n);
+		int valImg = img->informacion[i/n]- res + binarioADec(pTemp) ;
+		// printf("%s\n",asciiABinario(valImg));
+
+		// valImg = valImg - res + binarioADec(pTemp) ;
+
+		// printf("original: %s valAinsertar: %s valfinal: %s\n", asciiABinario(img->informacion[i/n]),asciiABinario(binarioADec(pTemp)),asciiABinario(valImg));
+		img->informacion[i/n] = valImg;
+
+		// printf("Valor img: %d, modulo: %d, binario: %s, val-res: %s, temp: %s, newVal: %s\n ",img->informacion[i/n], res, asciiABinario(img->informacion[i/n]),asciiABinario(img->informacion[i/n]-res),temp,asciiABinario(img->informacion[i/n]-res+binarioADec(pTemp)));
+	}
+	printf("La longitud del mensaje insertado es de: %d\n",lenPal/8 );
 }
 
 /**
@@ -120,6 +166,55 @@ void insertarMensaje( Imagen * img , unsigned char mensaje[], int n ) {
 */
 void leerMensaje( Imagen * img, unsigned char msg[], int l, int n ) {
 	//TODO  Desarrollar completo en C
+	int lenBits = l*8;
+	int casillas = lenBits/n;
+	if(lenBits%n!=0){
+		casillas +=1;
+	}
+	char ansBin[l*8+1];
+	// printf("%d\n",l*8 );
+	int cont = 0;
+	for(int i = 0; i<casillas;i++){
+		// printf("%s\n", asciiABinario(img -> informacion[i]%(1<<n)));
+		// char palabrita[n];
+		// printf("%s\n",palabrita );
+		for(int j = 0; j<n;j++){
+			// printf("%d\n",j+i*n  ;
+			// printf("%d\n",l*8 );
+			// if((j+i*n ) <(l*8) ){
+				// palabrita[j] =asciiABinario(img -> informacion[i]%(1<<n))[7-j] ;
+				cont ++;
+				ansBin[j+i*n] = asciiABinario(img -> informacion[i]%(1<<n))[7-j] ;
+				// printf("%c\n", asciiABinario(img -> informacion[i]%(1<<n))[7-j] );
+			// }
+				// strcat(ansBin,palabrita);
+		}
+
+		// printf("%s\n",palabrita );
+		// printf("%s\n",ansBin );
+		// strcat(ansBin,palabrita);
+	}
+	ansBin[l*8] = '\0';
+	char *binaryArray = ansBin;
+	// printf("%d\n",cont );
+	// printf("%s\n",binaryArray );
+
+	for(int i =0 ; i< lenBits;i+=8){
+		char letraAscii[9];
+		for(int j = 0; j<8 ; j++){
+			// printf("%d %c\n",i+j, binaryArray[i+j]	 );
+			letraAscii[j] = binaryArray[i+j];
+		}
+		letraAscii[8] = '\0';
+		char letra =binarioADec(letraAscii);
+		char *pointerLetra = &letra;
+		// strcat(msg,pointerLetra);
+		msg[i/8] = letra;
+
+		// printf("%s %c\n",letraAscii,binarioADec(letraAscii) );
+		// printf("%s\n",letraAscii );
+	}
+	// printf("%s\n",msg );
 }
 
 /**
@@ -242,4 +337,64 @@ void guardarBMP24 (Imagen * imagen, char * nomArchivoSalida) {
 	    fwrite(&relleno, sizeof(unsigned char), residuo, archivoSalida);
 	}
 	fclose(archivoSalida);
+}
+
+
+char *darMensajeBinario(unsigned char mensaje[],int n){
+  int numChars = strlen(mensaje);
+  char palBinario[10000*8] = "";
+  char *ans = palBinario;
+	int cont = 0;
+  for(int i =0 ;i<numChars;i++){
+    char *temp = asciiABinario(mensaje[i]);
+
+    strcat(palBinario,temp);
+		// printf("palBinario: %s\n"	,temp );
+		cont +=8 ;
+  }
+
+  int aIterar = (n-(strlen(palBinario)%n));
+
+  for(int i =0 ; i<aIterar ; i++){
+    strcat(palBinario,"0");
+		cont +=1;
+  }
+	lenPal = cont;
+  return ans;
+}
+
+
+
+
+/*
+Esta funcion convierte un caracter ASCII
+a un string que representa el numero en binario
+*/
+char *asciiABinario(int numDecimal){
+  //declaramos el arreglo de chars donde iran los 0s y 1s
+  char *ans = malloc(9*sizeof(char));
+  //algoritmo para convertir el numero a binario
+	ans[0]='0';
+  for(int i = 0; i < 7; i++){
+          int resp = numDecimal%2;
+          if(resp==0){
+              ans[8-i-1] = '0';
+          }
+          else{
+            ans[8-i-1] = '1';
+          }
+          numDecimal = numDecimal/2;
+  }
+  ans[8] = '\0';
+  return ans;
+}
+
+int binarioADec(char *palBinario){
+	int ans = 0 ;
+	for(int i =0; i<8 ;i++){
+			if(palBinario[i]=='1'){
+				ans += 1<<(7-i);
+			}
+	}
+	return ans;
 }

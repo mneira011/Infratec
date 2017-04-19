@@ -16,6 +16,8 @@ int lenPal = 0;
 char *asciiABinario(int numDecimal);
 char *darMensajeBinario(unsigned char mensaje[],int n);
 int binarioADec(char *palBinario);
+
+
 void insertarMensaje( Imagen * img , unsigned char mensaje[], int n );
 void leerMensaje(Imagen * img,char msg[], int l, int n);
 
@@ -56,7 +58,7 @@ int main(int argc, char const *argv[]) {
 	leerMensaje(img,palabra,13,3);
 	char palabra2[]= "A alejandro le acabo de cambiar la vidaaaaaaaaa";
 	insertarMensaje(img,palabra2,3);
-	leerMensaje(img,msg,47,3);
+	leerMensaje(img,msg,47	,3);
 	printf("%s\n", msg);
 	// for(int i = 0; i<ta ; i++){
   //   printf("%d\n",img->informacion[i] );
