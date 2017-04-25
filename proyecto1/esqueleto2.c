@@ -143,15 +143,22 @@ void insertarMensaje( Imagen * img , unsigned char mensaje[], int n ) {
 		//
 		// printf("Dec: %d, binario: %s\n",binarioADec(pTemp) ,temp );
 		// printf("Valor img: %d\n",img->informacion[i/n] );
+		// printf("Temp: %s\n", asciiABinario(binarioADec(pTemp)));
+		// printf("original %s\n",  asciiABinario(img->informacion[i/n]));
+
 		int res = img->informacion[i/n] % (1<<n);
-		int valImg = img->informacion[i/n]- res + binarioADec(pTemp) ;
-		// printf("%s\n",asciiABinario(valImg));
-
+		int valImg = img->informacion[i/n]- res ;
+		printf("%s\n",asciiABinario(valImg));
+		valImg = valImg +  binarioADec(pTemp);
+		printf("%d\n",  binarioADec(pTemp) );
+		printf("%s\n",asciiABinario(binarioADec(pTemp)) );
+		printf("%s\n",asciiABinario(valImg));
+		// printf("final %s\n",asciiABinario(valImg) );
 		// valImg = valImg - res + binarioADec(pTemp) ;
-
+		// printf("%s\n", asciiABinario(img->informacion[i/n]));
 		// printf("original: %s valAinsertar: %s valfinal: %s\n", asciiABinario(img->informacion[i/n]),asciiABinario(binarioADec(pTemp)),asciiABinario(valImg));
 		img->informacion[i/n] = valImg;
-
+		// printf("%s\n", asciiABinario(img->informacion[i/n]));
 		// printf("Valor img: %d, modulo: %d, binario: %s, val-res: %s, temp: %s, newVal: %s\n ",img->informacion[i/n], res, asciiABinario(img->informacion[i/n]),asciiABinario(img->informacion[i/n]-res),temp,asciiABinario(img->informacion[i/n]-res+binarioADec(pTemp)));
 	}
 	printf("La longitud del mensaje insertado es de: %d\n",lenPal/8 );
@@ -185,6 +192,7 @@ void leerMensaje( Imagen * img, unsigned char msg[], int l, int n ) {
 				// palabrita[j] =asciiABinario(img -> informacion[i]%(1<<n))[7-j] ;
 				cont ++;
 				ansBin[j+i*n] = asciiABinario(img -> informacion[i]%(1<<n))[7-j] ;
+				// printf("%c\n",asciiABinario(img -> informacion[i]%(1<<n))[7-j] );
 				// printf("%c\n", asciiABinario(img -> informacion[i]%(1<<n))[7-j] );
 			// }
 				// strcat(ansBin,palabrita);
@@ -206,6 +214,7 @@ void leerMensaje( Imagen * img, unsigned char msg[], int l, int n ) {
 			letraAscii[j] = binaryArray[i+j];
 		}
 		letraAscii[8] = '\0';
+		printf("%s\n",letraAscii );
 		char letra =binarioADec(letraAscii);
 		char *pointerLetra = &letra;
 		// strcat(msg,pointerLetra);
@@ -354,7 +363,7 @@ char *darMensajeBinario(unsigned char mensaje[],int n){
   }
 
   int aIterar = (n-(strlen(palBinario)%n));
-
+	aIterar = aIterar%n;
   for(int i =0 ; i<aIterar ; i++){
     strcat(palBinario,"0");
 		cont +=1;
@@ -374,8 +383,8 @@ char *asciiABinario(int numDecimal){
   //declaramos el arreglo de chars donde iran los 0s y 1s
   char *ans = malloc(9*sizeof(char));
   //algoritmo para convertir el numero a binario
-	ans[0]='0';
-  for(int i = 0; i < 7; i++){
+
+  for(int i = 0; i < 8; i++){
           int resp = numDecimal%2;
           if(resp==0){
               ans[8-i-1] = '0';
