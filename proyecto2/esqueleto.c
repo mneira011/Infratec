@@ -80,10 +80,10 @@ void decidir(char nomArch1[], char op, int bitsPorByte, char msg[], Imagen * img
 	printf("entro a decidir\n");
 	
     __asm {
-		mov al,bir
-		cmp al,  op
-		cmp al, 'w'
-		je escri'r'
+		mov al,op
+		cmp al,  'w'
+		je escribir
+		cmp al, 'r'
 		je leer
 		jmp fin
 escribir:
@@ -145,7 +145,7 @@ fin:
 
     }
 	
-	printf("eax vale: %d\n",test1);
+	printf("%d\n",test1);
 }
 
 /**
@@ -159,9 +159,17 @@ void insertarMensaje(Imagen * img , char mensaje[], int n) {
 	//SIN USAR NOMBRES SIMBOLICOS 
 	printf("entro a instertar mensaje\n");
     __asm {
+		push ebp 
+		mov ebp, esp 
 
+
+
+		mov esp, ebp 
+		pop ebp 
+		ret 
         
     }
+	
 }
 
 /**
@@ -176,7 +184,16 @@ void leerMensaje(Imagen * img, char msg[], int l, int n) {
 	//SE PUEDEN USAR NOMBRES SIBOLICOS 
 	printf("entro a leer mensaje\n");
     __asm {
-        
+		
+
+		mov eax, 0
+		mov ebx, 0
+		mov ecx, 0
+		mov edx, 255
+		shl edx, 3
+		mov test1, edx
+
+	
     }
 }
 
@@ -193,7 +210,14 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
     // TODO
 	//SE PUEDEN USAR NOMBRES SIBOLICOS 
     __asm {
-        
+        push ebp 
+		mov ebp, esp 
+
+
+
+		mov esp, ebp 
+		pop ebp 
+		ret 
     }
 }
 
