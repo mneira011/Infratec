@@ -104,25 +104,36 @@ void decidir(char nomArch1[], char op, int bitsPorByte, char msg[], Imagen * img
 escribir:
 		mov eax, bitsPorByte
 		push eax
-		
 		mov eax, msg
 		push eax
-		
 		mov eax, img
 		push eax
-				
+		push ebp
+		mov ebp, esp
+		mov iImg, 0
+		mov eax, iImg
+		push eax
+		mov bitpos, 0
+		mov eax, bitpos
+		push eax
+		mov eax, 0
+		mov al, nByte
+		push eax
+		mov eax, 0
+		mov al,m
+		push eax
 		call insertarMensaje
-		
 		pop eax
 		pop eax
 		pop eax
-
-
+		pop eax
+		pop eax
+		pop eax
 		jmp fin
 leer:
 
 		
-
+		mov eax,0
 		mov eax, bitsPorByte
 		push eax
 		
@@ -151,11 +162,9 @@ miFin:
 		call leerMensaje
 
 		pop eax 
+		pop eax
 		pop ecx
 		pop eax
-		pop eax
-
-		jmp fin
 fin:
 
     }
@@ -172,26 +181,46 @@ fin:
 // ESCRIBIR EN ENSAMBLADOR, *NO* SE PUEDEN USAR NOMBRES SIMBOLICOS
 void insertarMensaje(Imagen * img , char mensaje[], int n) {
 	//SIN USAR NOMBRES SIMBOLICOS 
-	printf("entro a instertar mensaje\n");
+	printf("entro a insertar mensaje\n");
     __asm {
 		//basandonos en la solucion propuesta por el monitor:
-		
-
-		
-
-		mov iImg, 0
-		mov bitpos, 0
-		mov eax, 255
-		mov ebx, [ebp+16]
-		//NO ME DEJA EJECTUAR MOV EAX, EBX -- POR QUEEEEEEEEE -_-
-		shl eax, [ebp + 16]
-		mov test1, eax
-
-		
-		
-		
-
-        
+		mov eax, 0
+		mov al, 255
+		mov ecx, [ebp+12]
+		shl al, cl
+		mov [ebp-16], eax
+        miWhile1:
+		mov eax, [ebp-8]
+		cdq
+		mov edx, 8
+		idiv edx
+		mov ebx, [ebp+8]
+		cmp [ebx+eax], 0
+		je finMiWhile
+		mov eax, [ebp+4]
+		mov ebx, [eax+8]
+		mov edx, [ebp-4]
+		mov cl, BYTE ptr[ebx+edx]
+		mov eax, [ebp-16]
+		and al, cl
+		mov ebx, [ebp-12]
+		mov bl, al
+		mov [ebp-12], ebx
+		or bl, //aqui falta el resultado de sacarNbits(mensaje, bitpos, n)
+		mov cl, bl
+		mov eax, [ebp+4]
+		mov ebx, [eax+8]
+		mov edx, [ebp-4]
+		mov BYTE ptr[ebx+edx], cl
+		mov eax, [ebp-8]
+		mov ecx, [ebp+12]
+		add eax, ecx
+		mov [ebp-8], eax
+		mov edx, [ebp-4]
+		inc edx
+		mov[ebp-4], edx
+		jmp miWhile1
+		finMiWhile:       
     }
 	printf("ebx:%d\n", test1);
 }
@@ -210,71 +239,56 @@ void leerMensaje(Imagen * img, char msg[], int l, int n) {
 	printf("n:%d\n", n);
 	printf("l:%d\n", l);
 	__asm {
-		push eax
-		push ecx
-		push edx
-		push ebx
-		push edi
-		push esi
-
 		mov esi, msg
 		mov eax, img;
 		mov eax, [eax + 8];
 		mov move, eax;
 		mov eax, 8;                                eax = 8;
 		sub eax, n;                                eax = al = 8 - n;
-
 		mov pos, 0;
 		mov ebx, l
-			imul ebx, 8
-			mov l, ebx
-
-			InicioWhile :
-		mov ebx, pos
+		imul ebx, 8
+		mov l, ebx
+		InicioWhile :
+			mov ebx, pos
 			cmp l, ebx
 			jl FinWhile
-
 			mov ebx, move
 			mov bl, [ebx]
 			mov info, bl
 			mov cl, al
 			shl info, cl
-
-			mov dl, info;									dl = info;
-		mov ebx, pos
+			mov dl, info;                                   dl = info;
+			cmp pos, 0
+			je sigamos
+			mov ebx, pos
 			shl ebx, 29;                                    pos % 8;
-		shr ebx, 29
+			shr ebx, 29
+			jmp continued
+			sigamos:
+			mov ebx,0
+			continued:
 			mov cl, bl
 			shr dl, cl
 			mov edi, pos
 			shr edi, 3;										pos / 8
 			or BYTE ptr[esi + edi], dl
-
 			cmp eax, ebx;									eax = 8 - n ebx = pos % 8;
-		jge finIf
-
+			jge finIf
 			mov edx, 8
 			sub edx, ebx
 			mov ch, info;							    	ebx = info;
-		mov cl, dl
+			mov cl, dl
 			shl ch, cl
 			or BYTE ptr[esi + edi + 1], ch
-			finIf :
-
-		inc move
+		finIf :
+			inc move
 			mov edx, pos
 			add edx, n
 			mov pos, edx
-
 			jmp InicioWhile
 
-			FinWhile :
-		pop esi
-			pop edi
-			pop ebx
-			pop edx
-			pop ecx
-			pop eax
+		FinWhile :
 	}
 	printf("El mensaje es:\n");
 	printf("%s\n", msg);
@@ -316,7 +330,6 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 		mov cl, bl
 		shl al, cl
 		mov byte1, al
-
 		mov eax, rest
 		mov ebx, numB
 		cmp eax, ebx
