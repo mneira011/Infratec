@@ -30,6 +30,11 @@ int  numB;
 int rest;
 char byte1;
 char rta;
+//PARA INSERTAR MENSAJE
+int iImg;
+int bitpos;
+char nByte;
+char m;
 // Funci—n que carga el bmp en la estructura Imagen
 void cargarBMP24 (Imagen * imagen, char * nomArchivoEntrada);
 
@@ -169,17 +174,26 @@ void insertarMensaje(Imagen * img , char mensaje[], int n) {
 	//SIN USAR NOMBRES SIMBOLICOS 
 	printf("entro a instertar mensaje\n");
     __asm {
-		push ebp 
-		mov ebp, esp 
+		//basandonos en la solucion propuesta por el monitor:
+		
 
+		
 
+		mov iImg, 0
+		mov bitpos, 0
+		mov eax, 255
+		mov ebx, [ebp+16]
+		//NO ME DEJA EJECTUAR MOV EAX, EBX -- POR QUEEEEEEEEE -_-
+		shl eax, [ebp + 16]
+		mov test1, eax
 
-		mov esp, ebp 
-		pop ebp 
-		ret 
+		
+		
+		
+
         
     }
-	
+	printf("ebx:%d\n", test1);
 }
 
 /**
