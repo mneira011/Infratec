@@ -21,9 +21,7 @@ typedef struct img
 int test1;
 
 //PARA LEER IMAGEN
-char *move;
-char info;
-int pos;
+
 //PARA SACARNBITS
 int posByte;
 int  numB;
@@ -108,8 +106,6 @@ escribir:
 		push eax
 		mov eax, img
 		push eax
-		push ebp
-		mov ebp, esp
 		mov iImg, 0
 		mov eax, iImg
 		push eax
@@ -186,41 +182,45 @@ void insertarMensaje(Imagen * img , char mensaje[], int n) {
 		//basandonos en la solucion propuesta por el monitor:
 		mov eax, 0
 		mov al, 255
-		mov ecx, [ebp+12]
+		mov ecx, [ebp+32]
 		shl al, cl
-		mov [ebp-16], eax
+		mov [ebp+8], eax
         miWhile1:
-		mov eax, [ebp-8]
+		mov eax, [ebp+16]
 		cdq
-		mov edx, 8
-		idiv edx
-		mov ebx, [ebp+8]
+		mov ecx, 8
+		idiv ecx
+		mov ebx, [ebp+28]
 		cmp [ebx+eax], 0
 		je finMiWhile
-		mov eax, [ebp+4]
+		mov eax, [ebp+24]
 		mov ebx, [eax+8]
-		mov edx, [ebp-4]
+		mov edx, [ebp+20]
 		mov cl, BYTE ptr[ebx+edx]
-		mov eax, [ebp-16]
+		mov eax, [ebp+8]
 		and al, cl
-		mov ebx, [ebp-12]
+		mov ebx, [ebp+12]
 		mov bl, al
-		mov [ebp-12], ebx
-		or bl, //aqui falta el resultado de sacarNbits(mensaje, bitpos, n)
+		mov [ebp+12], ebx
+		mov edx, 0
+		pop ebp
+		call sacarNbits
+		mov eax, [ebp-4]
+		or bl, al
 		mov cl, bl
-		mov eax, [ebp+4]
+		mov eax, [ebp+24]
 		mov ebx, [eax+8]
-		mov edx, [ebp-4]
+		mov edx, [ebp+20]
 		mov BYTE ptr[ebx+edx], cl
-		mov eax, [ebp-8]
-		mov ecx, [ebp+12]
+		mov eax, [ebp+16]
+		mov ecx, [ebp+32]
 		add eax, ecx
-		mov [ebp-8], eax
-		mov edx, [ebp-4]
+		mov [ebp+16], eax
+		mov edx, [ebp+20]
 		inc edx
-		mov[ebp-4], edx
+		mov[ebp+20], edx
 		jmp miWhile1
-		finMiWhile:       
+		finMiWhile:
     }
 	printf("ebx:%d\n", test1);
 }
@@ -234,10 +234,10 @@ void insertarMensaje(Imagen * img , char mensaje[], int n) {
  */
 // ESCRIBIR EN ENSAMBLADOR, SE PUEDEN USAR NOMBRES SIMBOLICOS
 void leerMensaje(Imagen * img, char msg[], int l, int n) {
-	//SE PUEDEN USAR NOMBRES SIBOLICOS 
-	printf("entro a leerMensaje...\n");
-	printf("n:%d\n", n);
-	printf("l:%d\n", l);
+	//SE PUEDEN USAR NOMBRES SIBOLICOS
+	char *move;
+	char info;
+	int pos;
 	__asm {
 		mov esi, msg
 		mov eax, img;
@@ -259,15 +259,9 @@ void leerMensaje(Imagen * img, char msg[], int l, int n) {
 			mov cl, al
 			shl info, cl
 			mov dl, info;                                   dl = info;
-			cmp pos, 0
-			je sigamos
 			mov ebx, pos
 			shl ebx, 29;                                    pos % 8;
 			shr ebx, 29
-			jmp continued
-			sigamos:
-			mov ebx,0
-			continued:
 			mov cl, bl
 			shr dl, cl
 			mov edi, pos
@@ -281,7 +275,7 @@ void leerMensaje(Imagen * img, char msg[], int l, int n) {
 			mov cl, dl
 			shl ch, cl
 			or BYTE ptr[esi + edi + 1], ch
-		finIf :
+			finIf :
 			inc move
 			mov edx, pos
 			add edx, n
@@ -298,7 +292,7 @@ void leerMensaje(Imagen * img, char msg[], int l, int n) {
 /**
  * Extrae n bits a partir del bit que se encuentra en la posici—n bitpos en la secuencia de bytes que
  * se pasan como parámetro
- * parametro secuencia Apuntador a una secuencia de bytes.
+ * parametro mensaje Apuntador a una cadena de caracteres.
  * parametro n Cantidad de bits que se desea extraer. 0 < n <= 8.
  * parametro bitpos Posición del bit desde donde se extraerán los bits. 0 <= n < 8*longitud de la secuencia
  * retorno Los n bits solicitados almacenados en los bits menos significativos de un unsigned char
@@ -310,23 +304,20 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 	
     __asm {
 		//ESTA PARTE LA HIZO AMILKAR, FALTA PROBAR 
-		push ebx
-		push ecx
-		push edx
-		push esi
 
-		mov esi, mensaje
+		mov ecx, mensaje
 		mov eax, 8
-		sub eax, n
+		sub eax, [ebp+12]
 		mov rest, eax
-		mov eax, bitpos
+		mov eax, [ebp-8]
 		mov ebx, eax
 		shl eax, 29
 		shr eax, 29
 		mov numB, eax
 		shr ebx, 3
-		mov al, [esi + ebx]
+		mov al, [ecx + ebx]
 		mov ebx, numB
+		mov ecx, 0
 		mov cl, bl
 		shl al, cl
 		mov byte1, al
@@ -334,7 +325,7 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 		mov ebx, numB
 		cmp eax, ebx
 		jge fin
-		mov ecx, bitpos
+		mov ecx, [ebp-8]
 		shr ecx, 3
 		mov ch, [esi + ecx + 1]
 		mov edx, 8
@@ -348,11 +339,10 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 		mov ebx, rest
 		mov cl, bl
 		shr al, cl
-
-		pop esi
-		pop edx
-		pop ecx
-		pop ebx
+		mov eax, 0
+		mov al, byte1
+		push eax
+		ret 
     }
 }
 
