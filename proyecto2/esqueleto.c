@@ -1,9 +1,9 @@
 // isis1304-111-proyecto2.cpp: define el punto de entrada de la aplicaci—n de consola.
 //
 // DESARROLLADO POR:
-// Nombre, carnet
-// Nombre, carnet
-// Nombre, carnet
+// Mauricio Neira, 201424001
+// Juan Felipe Ramos, 201616932
+// Amilkar Eslava, 201611332
 
 #define _CRT_SECURE_NO_DEPRECATE
 #include "stdlib.h"
@@ -209,15 +209,58 @@ void leerMensaje(Imagen * img, char msg[], int l, int n) {
 unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
     // TODO
 	//SE PUEDEN USAR NOMBRES SIBOLICOS 
+	int posByte;
+	int  numB;
+	int rest;
+	char byte;
+	char rta;
     __asm {
-        push ebp 
-		mov ebp, esp 
+		//ESTA PARTE LA HIZO AMILKAR, FALTA PROBAR 
+		push ebx
+		push ecx
+		push edx
+		push esi
 
+		mov esi, mensaje
+		mov eax, 8
+		sub eax, n
+		mov rest, eax
+		mov eax, bitpos
+		mov ebx, eax
+		shl eax, 29
+		shr eax, 29
+		mov numB, eax
+		shr ebx, 3
+		mov al, [esi + ebx]
+		mov ebx, numB
+		mov cl, bl
+		shl al, cl
+		mov byte, al
 
+		mov eax, rest
+		move ebx, numB
+		cmp eax, ebx
+		jge fin
+		mov ecx, bitpos
+		shr ecx, 3
+		mov ch, [esi + ecx + 1]
+		mov edx, 8
+		sub edx, numB
+		mov cl, dl
+		shr ch, cl
+		or byte, ch
+		fin :
+		mov eax, 0
+		mov al, byte
+		mov ebx, rest
+		mov cl, bl
+		shr al, cl
 
-		mov esp, ebp 
-		pop ebp 
-		ret 
+		pop esi
+		pop edx
+		pop ecx
+		pop ebx
+
     }
 }
 
