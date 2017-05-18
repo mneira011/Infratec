@@ -20,6 +20,16 @@ typedef struct img
 
 int test1;
 
+//PARA LEER IMAGEN
+char *move;
+char info;
+int pos;
+//PARA SACARNBITS
+int posByte;
+int  numB;
+int rest;
+char byte1;
+char rta;
 // Funci—n que carga el bmp en la estructura Imagen
 void cargarBMP24 (Imagen * imagen, char * nomArchivoEntrada);
 
@@ -126,7 +136,7 @@ miWhile:
 		jmp miWhile
 miFin:
 		push ecx
-
+		
 		mov eax, msg
 		push eax
 		
@@ -145,7 +155,7 @@ fin:
 
     }
 	
-	printf("%d\n",test1);
+	printf("coso%d\n",test1);
 }
 
 /**
@@ -182,19 +192,79 @@ void insertarMensaje(Imagen * img , char mensaje[], int n) {
 // ESCRIBIR EN ENSAMBLADOR, SE PUEDEN USAR NOMBRES SIMBOLICOS
 void leerMensaje(Imagen * img, char msg[], int l, int n) {
 	//SE PUEDEN USAR NOMBRES SIBOLICOS 
-	printf("entro a leer mensaje\n");
-    __asm {
-		
+	printf("entro a leerMensaje...\n");
+	printf("n:%d\n", n);
+	printf("l:%d\n", l);
+	__asm {
+		push eax
+		push ecx
+		push edx
+		push ebx
+		push edi
+		push esi
 
-		mov eax, 0
-		mov ebx, 0
-		mov ecx, 0
-		mov edx, 255
-		shl edx, 3
-		mov test1, edx
+		mov esi, msg
+		mov eax, img;
+		mov eax, [eax + 8];
+		mov move, eax;
+		mov eax, 8;                                eax = 8;
+		sub eax, n;                                eax = al = 8 - n;
 
-	
-    }
+		mov pos, 0;
+		mov ebx, l
+			imul ebx, 8
+			mov l, ebx
+
+			InicioWhile :
+		mov ebx, pos
+			cmp l, ebx
+			jl FinWhile
+
+			mov ebx, move
+			mov bl, [ebx]
+			mov info, bl
+			mov cl, al
+			shl info, cl
+
+			mov dl, info;									dl = info;
+		mov ebx, pos
+			shl ebx, 29;                                    pos % 8;
+		shr ebx, 29
+			mov cl, bl
+			shr dl, cl
+			mov edi, pos
+			shr edi, 3;										pos / 8
+			or BYTE ptr[esi + edi], dl
+
+			cmp eax, ebx;									eax = 8 - n ebx = pos % 8;
+		jge finIf
+
+			mov edx, 8
+			sub edx, ebx
+			mov ch, info;							    	ebx = info;
+		mov cl, dl
+			shl ch, cl
+			or BYTE ptr[esi + edi + 1], ch
+			finIf :
+
+		inc move
+			mov edx, pos
+			add edx, n
+			mov pos, edx
+
+			jmp InicioWhile
+
+			FinWhile :
+		pop esi
+			pop edi
+			pop ebx
+			pop edx
+			pop ecx
+			pop eax
+	}
+	printf("El mensaje es:\n");
+	printf("%s\n", msg);
+	printf("Fin de leer mensaje...\n");
 }
 
 /**
@@ -209,11 +279,7 @@ void leerMensaje(Imagen * img, char msg[], int l, int n) {
 unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
     // TODO
 	//SE PUEDEN USAR NOMBRES SIBOLICOS 
-	int posByte;
-	int  numB;
-	int rest;
-	char byte;
-	char rta;
+	
     __asm {
 		//ESTA PARTE LA HIZO AMILKAR, FALTA PROBAR 
 		push ebx
@@ -235,10 +301,10 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 		mov ebx, numB
 		mov cl, bl
 		shl al, cl
-		mov byte, al
+		mov byte1, al
 
 		mov eax, rest
-		move ebx, numB
+		mov ebx, numB
 		cmp eax, ebx
 		jge fin
 		mov ecx, bitpos
@@ -248,10 +314,10 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 		sub edx, numB
 		mov cl, dl
 		shr ch, cl
-		or byte, ch
+		or byte1 , ch
 		fin :
 		mov eax, 0
-		mov al, byte
+		mov al, byte1
 		mov ebx, rest
 		mov cl, bl
 		shr al, cl
@@ -260,7 +326,6 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 		pop edx
 		pop ecx
 		pop ebx
-
     }
 }
 
