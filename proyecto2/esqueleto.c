@@ -27,7 +27,7 @@ int posByte;
 int  numB;
 int rest;
 char byte1;
-char rta;
+int rta;
 //PARA INSERTAR MENSAJE
 int iImg;
 int bitpos;
@@ -119,12 +119,7 @@ escribir:
 		mov al,m
 		push eax
 		call insertarMensaje
-		pop eax
-		pop eax
-		pop eax
-		pop eax
-		pop eax
-		pop eax
+		add esp, 28
 		jmp fin
 leer:
 
@@ -202,14 +197,16 @@ void insertarMensaje(Imagen * img , char mensaje[], int n) {
 		mov ebx, [ebp+12]
 		mov bl, al
 		mov [ebp+12], ebx
-		mov edx,[ebp+32]
-		push edx
-		mov edx, [ebp+16]
-		push edx
-		mov edx, [ebp+28]
-		push edx
+		mov ecx, ebp
+		mov esi,[ebp+32]
+		push esi
+		mov esi, [ebp+16]
+		push esi
+		mov esi, [ebp+28]
+		push esi
 		call sacarNbits
-		mov eax, [ebp-4]
+		add esp, 12
+		mov eax, rta
 		or bl, al
 		mov cl, bl
 		mov eax, [ebp+24]
@@ -345,8 +342,8 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 		shr al, cl
 		mov eax, 0
 		mov al, byte1
-		push eax
-		pop esi
+		mov rta, eax
+		pop ebp
 		ret
     }
 }
