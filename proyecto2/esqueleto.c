@@ -202,8 +202,12 @@ void insertarMensaje(Imagen * img , char mensaje[], int n) {
 		mov ebx, [ebp+12]
 		mov bl, al
 		mov [ebp+12], ebx
-		mov edx, 0
-		pop ebp
+		mov edx,[ebp+32]
+		push edx
+		mov edx, [ebp+16]
+		push edx
+		mov edx, [ebp+28]
+		push edx
 		call sacarNbits
 		mov eax, [ebp-4]
 		or bl, al
@@ -304,12 +308,12 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 	
     __asm {
 		//ESTA PARTE LA HIZO AMILKAR, FALTA PROBAR 
-
-		mov ecx, mensaje
+		mov ecx, [ebp+8]
 		mov eax, 8
-		sub eax, [ebp+12]
+		mov edx, [ebp+16]
+		sub eax, edx
 		mov rest, eax
-		mov eax, [ebp-8]
+		mov eax, [ebp+12]
 		mov ebx, eax
 		shl eax, 29
 		shr eax, 29
@@ -325,7 +329,7 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 		mov ebx, numB
 		cmp eax, ebx
 		jge fin
-		mov ecx, [ebp-8]
+		mov ecx, [ebp+12]
 		shr ecx, 3
 		mov ch, [esi + ecx + 1]
 		mov edx, 8
@@ -342,7 +346,8 @@ unsigned char sacarNbits(char mensaje[],int bitpos,int n) {
 		mov eax, 0
 		mov al, byte1
 		push eax
-		ret 
+		pop esi
+		ret
     }
 }
 
